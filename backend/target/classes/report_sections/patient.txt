@@ -1,0 +1,5 @@
+The patient's is a [[PATIENT_GENDER]], born [[PATIENT_BIRTHDATE]]. His primary insurance is [[PATIENT_INSURANCE]] and he has no secondary insurance. He is complaining of [[COMPLAINTS]]. ICD-10 Code: [[PATIENT_ICD10CODE]]. CPT Code: [[PATIENT_CPTCODE]].
+
+Evaluation Details:
+
+The evaluation was completed on [[PATIENT_EVALUATIONDATE]].

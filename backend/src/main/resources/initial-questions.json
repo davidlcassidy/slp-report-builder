@@ -1,0 +1,47 @@
+[
+  {
+    "internalId": "PATIENT_GENDER",
+    "section": "PATIENT",
+    "type": "RADIO_BUTTON",
+    "text": "What is the patient's gender?",
+    "answerOptions": ["Male", "Female", "Other"]
+  },
+  {
+    "internalId": "PATIENT_BIRTHDATE",
+    "section": "PATIENT",
+    "type": "DATE",
+    "text": "When is the patient's birthday?"
+  },
+  {
+    "internalId": "PATIENT_EVALUATIONDATE",
+    "section": "PATIENT",
+    "type": "DATE",
+    "text": "When was the evaluation completed?"
+  },
+  {
+    "internalId": "PATIENT_INSURANCE",
+    "section": "PATIENT",
+    "type": "SHORT_ANSWER",
+    "text": "What is the patient's insurance?"
+  },
+  {
+    "internalId": "PATIENT_ICD10CODE",
+    "section": "PATIENT",
+    "type": "DROPDOWN",
+    "text": "Select ICD-10 code?",
+    "answerOptions": ["Code1", "Code2", "Code3"]
+  },
+  {
+    "internalId": "PATIENT_CPTCODE",
+    "section": "PATIENT",
+    "type": "DROPDOWN",
+    "text": "Select CPT code?",
+    "answerOptions": ["Code1", "Code2", "Code3"]
+  },
+  {
+    "internalId": "BACKGROUND_Q1",
+    "section": "BACKGROUND",
+    "type": "LONG_ANSWER",
+    "text": "Background"
+  }
+]
