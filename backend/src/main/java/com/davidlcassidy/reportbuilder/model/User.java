@@ -6,17 +6,26 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
+import java.time.ZonedDateTime;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-public class Interview {
+public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Date completedDate;
+
+    @Column(unique = true)
+    private String username;
+
+    private String hashedPassword;
+    private String authenticationToken;
+    private ZonedDateTime authenticationTokenExpiration;
+
+    private String firstName;
+    private String lastName;
 
 }

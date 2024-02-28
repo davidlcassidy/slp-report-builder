@@ -56,7 +56,7 @@ export default {
   },
   methods: {
     startNewInterview() {
-      axios.post('/interview')
+      axios.post('api/v1/interview')
         .then(response => {
           this.interviewId = response.data.interviewId;
           this.sections = response.data.sections;
@@ -82,7 +82,7 @@ export default {
         questionResponses: questionResponsesDTO
       };
 
-      axios.post('/interview/responses', saveInterviewAnswersRequest)
+      axios.post('/api/v1/interview/responses', saveInterviewAnswersRequest)
         .then(response => {
           if (response.data && response.data.length > 0) {
             this.questionResponses = response.data.map(question => ({
@@ -91,7 +91,7 @@ export default {
             }));
             this.currentStepIndex = this.getSectionIndex();
           } else {
-            router.push('/');
+            router.push('/reports');
           }
         })
         .catch(error => {

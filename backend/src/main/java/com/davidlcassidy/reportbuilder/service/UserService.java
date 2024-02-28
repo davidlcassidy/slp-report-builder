@@ -1,91 +1,73 @@
 package com.davidlcassidy.reportbuilder.service;
 
-import com.davidlcassidy.reportbuilder.enumerated.ReportSection;
-import com.davidlcassidy.reportbuilder.model.InterviewAnswer;
-import com.davidlcassidy.reportbuilder.model.Interview;
-import com.davidlcassidy.reportbuilder.model.InterviewQuestion;
-import com.davidlcassidy.reportbuilder.payload.QuestionAnswerDTO;
+import com.davidlcassidy.reportbuilder.model.User;
 import com.davidlcassidy.reportbuilder.repository.InterviewRepository;
-import com.davidlcassidy.reportbuilder.repository.InterviewQuestionRepository;
-import com.davidlcassidy.reportbuilder.repository.InterviewAnswerRepository;
+import com.davidlcassidy.reportbuilder.repository.UserRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.time.ZonedDateTime;
 import java.util.Optional;
+import java.util.Random;
 
 @Service
-public class InterviewService {
-
-    static ReportSection INITIAL_SECTION = ReportSection.PATIENT;
+public class UserService {
 
     @Autowired
-    private InterviewRepository interviewRepository;
+    UserRepository userRepository;
 
     @Autowired
-    private InterviewQuestionRepository interviewQuestionRepository;
+    InterviewRepository interviewRepository;
 
-    @Autowired
-    private InterviewAnswerRepository interviewAnswerRepository;
+    private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
-    public Long createNewInterview(){
-        Interview newInterview = Interview.builder().build();
-        newInterview = interviewRepository.save(newInterview);
-        return newInterview.getId();
+    public String generateAuthenticationToken() {
+        int tokenLength = 30;
+        StringBuilder sb = new StringBuilder(tokenLength);
+        Random random = new Random();
+        for (int i = 0; i < tokenLength; i++) {
+            int randomIndex = random.nextInt(CHARACTERS.length());
+            char randomChar = CHARACTERS.charAt(randomIndex);
+            sb.append(randomChar);
+        }
+        return sb.toString();
     }
 
-    public List<InterviewAnswer> saveResponses(Interview interview, List<QuestionAnswerDTO> responses) throws Exception {
-        List<InterviewAnswer> interviewAnswerEntities = new ArrayList<>();
-        for (QuestionAnswerDTO responseDTO : responses) {
-            InterviewQuestion interviewQuestion = interviewQuestionRepository.findById(responseDTO.getQuestionId()).orElse(null);
-            if (interviewQuestion == null) {
-                throw new Exception();
+    public String generatePasswordHash(String password) throws NoSuchAlgorithmException {
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        byte[] hashBytes = digest.digest(password.getBytes());
+        StringBuilder hexString = new StringBuilder();
+        for (byte hashByte : hashBytes) {
+            String hex = Integer.toHexString(0xff & hashByte);
+            if (hex.length() == 1) {
+                hexString.append('0');
             }
+            hexString.append(hex);
+        }
+        return hexString.toString();
+    }
 
-            InterviewAnswer interviewAnswer = new InterviewAnswer();
-            interviewAnswer.setInterview(interview);
-            interviewAnswer.setInterviewQuestion(interviewQuestion);
-            interviewAnswer.setResponse(responseDTO.getResponse());
-            interviewAnswerEntities.add(interviewAnswer);
+    public User validateUserAuthenticationToken(HttpServletRequest request) throws Exception {
+        String authenticationToken = request.getHeader("AuthenticationToken");
+
+        Optional<User> user = userRepository.findByAuthenticationTokenAndAuthenticationTokenExpirationAfter(authenticationToken, ZonedDateTime.now());
+
+        if (user.isEmpty()) {
+            throw new Exception("Authentication token has expired or is invalid.");
         }
 
-        interviewAnswerRepository.saveAll(interviewAnswerEntities);
-
-        return interviewAnswerEntities;
+        return user.get();
     }
 
-    public List<InterviewQuestion> getNextInterviewQuestions(List<InterviewAnswer> previousresponses){
-
-        if (previousresponses.isEmpty()) {
-            return interviewQuestionRepository.findBySection(INITIAL_SECTION);
-        } else {
-            ReportSection previousSection = previousresponses.get(0).getInterviewQuestion().getSection();
-            ReportSection nextSection = null;
-            switch(previousSection) {
-                case PATIENT:
-                    nextSection = ReportSection.BACKGROUND;
-                    break;
-                case BACKGROUND:
-                    Long interviewId = previousresponses.get(0).getInterview().getId();
-                    markInterviewAsCompleted(interviewId);
-                    break;
-            }
-
-            if (nextSection == null) {
-                return new ArrayList<>();
-            }
-
-            return interviewQuestionRepository.findBySection(nextSection);
+    public User validateUserAuthenticationTokenAndInterview(HttpServletRequest request, Long interviewId) throws Exception {
+        User user = validateUserAuthenticationToken(request);
+        if(interviewRepository.findByUserIdAndId(user.getId(), Long.valueOf(interviewId)) == null) {
+            throw new Exception();
         }
+        return user;
     }
 
-    private void markInterviewAsCompleted(Long interviewId) {
-        Optional<Interview> optionalInterview = interviewRepository.findById(String.valueOf(interviewId));
-        optionalInterview.ifPresent(interview -> {
-            interview.setCompletedDate(new Date());
-            interviewRepository.save(interview);
-        });
-    }
 }

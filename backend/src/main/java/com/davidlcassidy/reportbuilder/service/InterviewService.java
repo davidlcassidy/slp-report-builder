@@ -4,6 +4,7 @@ import com.davidlcassidy.reportbuilder.enumerated.ReportSection;
 import com.davidlcassidy.reportbuilder.model.InterviewAnswer;
 import com.davidlcassidy.reportbuilder.model.Interview;
 import com.davidlcassidy.reportbuilder.model.InterviewQuestion;
+import com.davidlcassidy.reportbuilder.model.User;
 import com.davidlcassidy.reportbuilder.payload.QuestionAnswerDTO;
 import com.davidlcassidy.reportbuilder.repository.InterviewRepository;
 import com.davidlcassidy.reportbuilder.repository.InterviewQuestionRepository;
@@ -30,8 +31,8 @@ public class InterviewService {
     @Autowired
     private InterviewAnswerRepository interviewAnswerRepository;
 
-    public Long createNewInterview(){
-        Interview newInterview = Interview.builder().build();
+    public Long createNewInterview(User user){
+        Interview newInterview = Interview.builder().user(user).build();
         newInterview = interviewRepository.save(newInterview);
         return newInterview.getId();
     }
