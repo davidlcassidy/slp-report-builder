@@ -2,9 +2,19 @@
   <div class="topbar">
     <div class="brand">SLP Report Builder</div>
     <div class="user-menu" v-if="isAuthenticated">
-      <div class="username" @click="toggleDropdown()">{{ username }}</div>
+      <div class="user-details" @click="toggleDropdown()">
+        <div class="username">@{{ user.username }}</div>
+      </div>
       <div class="dropdown" v-show="showDropdown" @click.stop>
+        <div class="user-profile">
+          <div>{{ user.firstName }} {{ user.lastName }}</div>
+          <div>@{{ user.username }}</div>
+          <div>{{ user.position }}</div>
+        </div>
+        <hr>
+        <button @click="goToUserProfile">User Profile</button>
         <button @click="goToSettings">Settings</button>
+        <hr>
         <button @click="logout">Logout</button>
       </div>
     </div>
@@ -21,13 +31,8 @@ export default {
     isAuthenticated() {
       return this.$store.getters.isAuthenticated;
     },
-    username() {
-      const user = this.$store.getters.getUser;
-      if (user) {
-        return `${user.firstName} ${user.lastName}`;
-      } else {
-        return '';
-      }
+    user() {
+      return this.$store.getters.getUser;
     }
   },
   data() {
@@ -39,10 +44,16 @@ export default {
     toggleDropdown() {
       this.showDropdown = !this.showDropdown;
     },
+    goToUserProfile() {
+      this.toggleDropdown();
+      this.$router.push('/user-profile');
+    },
     goToSettings() {
+      this.toggleDropdown();
       // Implement navigation to settings page
     },
     logout() {
+      this.toggleDropdown();
       this.$store.dispatch('logout');
     }
   }
@@ -52,7 +63,7 @@ export default {
 <style scoped>
 .topbar {
   background-color: #007bff;
-  color: #fff;
+  color: black;
   padding: 10px;
   display: flex;
   justify-content: space-between;
@@ -60,6 +71,7 @@ export default {
 }
 
 .brand {
+  color: #fff;
   font-size: 1.5rem;
 }
 
@@ -69,6 +81,7 @@ export default {
 
 .username {
   cursor: pointer;
+  color: #fff;
   padding: 5px 10px;
   border-radius: 4px;
   background-color: #0056b3;
@@ -82,13 +95,14 @@ export default {
   position: absolute;
   top: calc(100% + 5px);
   right: 0;
+  width: 250px;
   background-color: #fff;
   border: 1px solid #ccc;
   padding: 5px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.dropdown button {
+.dropdown button, .user-profile {
   display: block;
   width: 100%;
   text-align: left;
@@ -96,8 +110,11 @@ export default {
   margin: 5px 0;
   background-color: transparent;
   border: none;
-  cursor: pointer;
   transition: background-color 0.3s ease;
+}
+
+.dropdown button {
+  cursor: pointer;
 }
 
 .dropdown button:hover {

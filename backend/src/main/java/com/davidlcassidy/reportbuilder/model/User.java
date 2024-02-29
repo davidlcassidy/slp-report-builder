@@ -22,10 +22,11 @@ public class User {
     private String username;
 
     private String hashedPassword;
-    private String authenticationToken;
+    private String hashedAuthenticationToken;
     private ZonedDateTime authenticationTokenExpiration;
 
     private String firstName;
     private String lastName;
+    private String position;
 
 }

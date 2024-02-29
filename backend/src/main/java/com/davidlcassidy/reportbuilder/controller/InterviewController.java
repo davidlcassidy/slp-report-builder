@@ -1,19 +1,20 @@
 package com.davidlcassidy.reportbuilder.controller;
 
 import com.davidlcassidy.reportbuilder.enumerated.ReportSection;
-import com.davidlcassidy.reportbuilder.model.InterviewQuestion;
+import com.davidlcassidy.reportbuilder.model.Interview;
 import com.davidlcassidy.reportbuilder.model.InterviewAnswer;
+import com.davidlcassidy.reportbuilder.model.InterviewQuestion;
 import com.davidlcassidy.reportbuilder.model.User;
 import com.davidlcassidy.reportbuilder.payload.InitialInterviewResponse;
-import com.davidlcassidy.reportbuilder.model.Interview;
 import com.davidlcassidy.reportbuilder.payload.SaveInterviewAnswersRequest;
-import com.davidlcassidy.reportbuilder.repository.InterviewRepository;
-import com.davidlcassidy.reportbuilder.repository.InterviewQuestionRepository;
 import com.davidlcassidy.reportbuilder.repository.InterviewAnswerRepository;
+import com.davidlcassidy.reportbuilder.repository.InterviewQuestionRepository;
+import com.davidlcassidy.reportbuilder.repository.InterviewRepository;
 import com.davidlcassidy.reportbuilder.service.InterviewService;
 import com.davidlcassidy.reportbuilder.service.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +23,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @Tag(name = "Interview Controller", description = "")
@@ -79,7 +79,7 @@ public class InterviewController {
         }
 
         try {
-            List<InterviewAnswer> previousResponses = interviewService.saveResponses(interview, requestBody.getQuestionResponses());
+            List<InterviewAnswer> previousResponses = interviewService.saveInterviewAnswers(interview, requestBody.getQuestionResponses());
             List<InterviewQuestion> response = interviewService.getNextInterviewQuestions(previousResponses);
             return ResponseEntity.status(HttpStatus.OK).body(response);
         } catch (Exception e) {
@@ -98,6 +98,38 @@ public class InterviewController {
         }
 
         return new ResponseEntity<>(interviewRepository.findAllByUserIdAndCompletedDateIsNotNull(user.getId()), HttpStatus.OK);
+    }
+
+    @Transactional
+    @DeleteMapping("/{interviewId}")
+    public ResponseEntity<String> deleteInterviewById(
+            HttpServletRequest request,
+            @PathVariable String interviewId
+    ) {
+        try {
+            userService.validateUserAuthenticationToken(request);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
+        interviewAnswerRepository.deleteByInterview_Id(Long.valueOf(interviewId));
+        interviewRepository.deleteById(interviewId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @Transactional
+    @DeleteMapping("/all")
+    public ResponseEntity<String> deleteInterviewsByUserId(HttpServletRequest request) {
+        User user;
+        try {
+            user = userService.validateUserAuthenticationToken(request);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
+        interviewAnswerRepository.deleteByUserId(user.getId());
+        interviewRepository.deleteByUserId(user.getId());
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
 }

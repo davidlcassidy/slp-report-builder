@@ -1,16 +1,20 @@
 package com.davidlcassidy.reportbuilder.service;
 
 import com.davidlcassidy.reportbuilder.enumerated.ReportSection;
-import com.davidlcassidy.reportbuilder.model.InterviewAnswer;
 import com.davidlcassidy.reportbuilder.model.Interview;
+import com.davidlcassidy.reportbuilder.model.InterviewAnswer;
 import com.davidlcassidy.reportbuilder.model.InterviewQuestion;
 import com.davidlcassidy.reportbuilder.model.User;
 import com.davidlcassidy.reportbuilder.payload.QuestionAnswerDTO;
-import com.davidlcassidy.reportbuilder.repository.InterviewRepository;
-import com.davidlcassidy.reportbuilder.repository.InterviewQuestionRepository;
 import com.davidlcassidy.reportbuilder.repository.InterviewAnswerRepository;
+import com.davidlcassidy.reportbuilder.repository.InterviewQuestionRepository;
+import com.davidlcassidy.reportbuilder.repository.InterviewRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -37,9 +41,9 @@ public class InterviewService {
         return newInterview.getId();
     }
 
-    public List<InterviewAnswer> saveResponses(Interview interview, List<QuestionAnswerDTO> responses) throws Exception {
+    public List<InterviewAnswer> saveInterviewAnswers(Interview interview, List<QuestionAnswerDTO> questionAnswerDTOS) throws Exception {
         List<InterviewAnswer> interviewAnswerEntities = new ArrayList<>();
-        for (QuestionAnswerDTO responseDTO : responses) {
+        for (QuestionAnswerDTO responseDTO : questionAnswerDTOS) {
             InterviewQuestion interviewQuestion = interviewQuestionRepository.findById(responseDTO.getQuestionId()).orElse(null);
             if (interviewQuestion == null) {
                 throw new Exception();
@@ -80,6 +84,16 @@ public class InterviewService {
 
             return interviewQuestionRepository.findBySection(nextSection);
         }
+    }
+
+    public void deleteInterviewById(Long interviewId) {
+        interviewAnswerRepository.deleteByInterview_Id(interviewId);
+        interviewRepository.deleteById(String.valueOf(interviewId));
+    }
+
+    public void deleteInterviewsByUserId(Long userId) {
+        interviewAnswerRepository.deleteByUserId(userId);
+        interviewRepository.deleteByUserId(userId);
     }
 
     private void markInterviewAsCompleted(Long interviewId) {

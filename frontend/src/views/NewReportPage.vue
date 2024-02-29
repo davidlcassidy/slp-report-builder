@@ -91,7 +91,7 @@ export default {
             }));
             this.currentStepIndex = this.getSectionIndex();
           } else {
-            router.push('/reports');
+            router.push('/dashboard');
           }
         })
         .catch(error => {

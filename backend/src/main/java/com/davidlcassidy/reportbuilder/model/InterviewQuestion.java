@@ -1,7 +1,7 @@
 package com.davidlcassidy.reportbuilder.model;
 
-import com.davidlcassidy.reportbuilder.enumerated.ReportSection;
 import com.davidlcassidy.reportbuilder.enumerated.QuestionType;
+import com.davidlcassidy.reportbuilder.enumerated.ReportSection;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

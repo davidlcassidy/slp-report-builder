@@ -55,8 +55,6 @@ public class ReportService {
         return wordMLPackage;
     }
 
-
-
     private String getReportSectionContent(ReportSection reportSection) throws IOException {
         String reportSectionText = "report_sections/patient.txt";
 
@@ -89,5 +87,4 @@ public class ReportService {
 
         return replacedText;
     }
-
 }

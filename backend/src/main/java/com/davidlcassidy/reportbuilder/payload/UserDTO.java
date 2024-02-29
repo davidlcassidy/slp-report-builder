@@ -1,6 +1,6 @@
-package com.davidlcassidy.reportbuilder.model;
+package com.davidlcassidy.reportbuilder.payload;
 
-import jakarta.persistence.*;
+import com.davidlcassidy.reportbuilder.model.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,21 +12,23 @@ import java.time.ZonedDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity
-public class User {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(unique = true)
+public class UserDTO {
     private String username;
+    private String password;
 
-    private String hashedPassword;
-    private String hashedAuthenticationToken;
+    private String authenticationToken;
     private ZonedDateTime authenticationTokenExpiration;
 
     private String firstName;
     private String lastName;
     private String position;
 
+    public UserDTO(User user, String authenticationToken) {
+        this.username = user.getUsername();
+        this.authenticationToken = authenticationToken;
+        this.authenticationTokenExpiration = user.getAuthenticationTokenExpiration();
+        this.firstName = user.getFirstName();
+        this.lastName = user.getLastName();
+        this.position = user.getPosition();
+    }
 }

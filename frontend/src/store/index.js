@@ -7,7 +7,10 @@ export default createStore({
   },
   mutations: {
     login(state, user) {
-      state.user = user
+      state.user = {
+        ...user,
+        authenticationToken: user.authenticationToken || state.user.authenticationToken
+      }
     },
     logout(state) {
       state.user = null

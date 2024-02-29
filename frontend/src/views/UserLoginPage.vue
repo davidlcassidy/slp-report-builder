@@ -34,7 +34,7 @@ export default {
         });
         const user = response.data;
         this.$store.commit('login', user);
-        this.$router.push('/reports');
+        this.$router.push('/dashboard');
       } catch (error) {
         if (error.response && error.response.status === 400) {
           this.errorMessage = 'Invalid username or password';
